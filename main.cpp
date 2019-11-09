@@ -31,7 +31,7 @@ void ListConstructor (list* lst);
 void ListDistructor (list* lst);
 int InsertAfter (list* lst, int pos, el_t value);
 bool TestPushFront ();
-void PushFront (list* lst, el_t value);
+int PushFront (list* lst, el_t value);
 void Dump (list* lst, int limit = DefaultSize, char* str = "Information lst");
 int main () {
 
@@ -43,9 +43,11 @@ int main () {
     PushFront (&lst1, 24);
     PushFront (&lst1, 19);
 
-    Dump (&lst1, 20);
+    //Dump (&lst1, 20);
 
     InsertAfter (&lst1, 3, 98);
+    InsertAfter (&lst1, 3, 45);
+    InsertAfter (&lst1, 2, 76);
     Dump (&lst1, 20);
     return 0;
 }
@@ -79,7 +81,11 @@ void ListDistructor (list* lst) {
     free(lst->next);
     free(lst->prev);
 }
+
 int InsertAfter (list* lst, int pos, el_t value) {
+
+    if (lst->size == 0) return PushFront (lst, value);
+
     lst->size += 1;
 
     lst->data[lst->free] = value;
@@ -136,13 +142,14 @@ bool TestPushFront () {
     return count == 12;
 }
 
-void PushFront (list* lst, el_t value) {
+int PushFront (list* lst, el_t value) {
     lst->size += 1;
     int pos = lst->free;
     lst->data[pos] = value;
     lst->free = lst->next[lst->free];
     lst->next[pos] = lst->head;
     lst->head = pos;
+    return pos;
 }
 
 void Dump (list* lst, int limit, char* str) {
@@ -164,4 +171,10 @@ void Dump (list* lst, int limit, char* str) {
     printf ("free = %d\n", lst->free);
     printf ("size = %d\n", lst->size);
     printf ("}\n");
+
+    int f = lst->head;
+    while ( f != 0) {
+        printf ("|%d|-->", lst->data[f]);
+        f = lst->next[f];
+    }
 }
