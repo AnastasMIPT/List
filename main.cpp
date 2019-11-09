@@ -28,32 +28,22 @@ struct list
 };
 
 void ListConstructor (list* lst);
+void ListDistructor (list* lst);
 int InsertAfter (list* lst, int pos, el_t value);
 bool TestPushFront ();
 void PushFront (list* lst, el_t value);
 void Dump (list* lst, int limit = DefaultSize, char* str = "Information lst");
 int main () {
 
-//    list lst1;
-//    ListConstructor (&lst1);
-//
-//    //Dump (&lst1, 20);
-//
-//    PushFront (&lst1, 10);
-//    PushFront (&lst1, 23);
-//    Dump (&lst1, 20);
-//    lst1.data[1] = 15;
-//    lst1.next[1] = 3;
-//    lst1.next[2] = 4;
-//    lst1.data[3] = 38;
-//    lst1.next[3] = 0;
-//    lst1.size = 2;
-//    lst1.free = 2;
-//    PushFront (&lst1, 12);
-//    PushFront (&lst1, 11);
-//    Dump (&lst1, 20);
-    if (TestPushFront()) printf ("OK");
+    list lst1;
+    ListConstructor (&lst1);
 
+    PushFront (&lst1, 12);
+    PushFront (&lst1, 35);
+    PushFront (&lst1, 24);
+    PushFront (&lst1, 19);
+
+    Dump (&lst1, 20);
     return 0;
 }
 
@@ -80,6 +70,12 @@ void ListConstructor (list* lst) {
 
 }
 
+void ListDistructor (list* lst) {
+
+    free(lst->data);
+    free(lst->next);
+    free(lst->prev);
+}
 int InsertAfter (list* lst, int pos, el_t value) {
     el_t buf = lst->next[pos];
     lst->next[pos] = lst->free;
@@ -116,10 +112,23 @@ bool TestPushFront () {
     TEST (lst1.size != 4, PushFront, 7)
     TEST (lst1.head != 4, PushFront, 8)
 
-    //Dump (&lst1, 20);
+    ListDistructor (&lst1);
 
-    return count == 8;
+    list lst2;
+    ListConstructor (&lst2);
+
+    PushFront (&lst2, 25);
+
+    TEST (lst2.data[1] != 25, PushFront, 9)
+    TEST (lst2.next[1] != 0, PushFront, 10)
+    TEST (lst2.size != 1, PushFront, 11)
+    TEST (lst2.head != 1, PushFront, 12)
+
+    ListDistructor (&lst2);
+
+    return count == 12;
 }
+
 void PushFront (list* lst, el_t value) {
     lst->size += 1;
     int pos = lst->free;
