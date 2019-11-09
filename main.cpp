@@ -38,16 +38,8 @@ int main () {
     list lst1;
     ListConstructor (&lst1);
 
-    PushFront (&lst1, 12);
-    PushFront (&lst1, 35);
-    PushFront (&lst1, 24);
-    PushFront (&lst1, 19);
-
-    //Dump (&lst1, 20);
-
-    InsertAfter (&lst1, 3, 98);
-    InsertAfter (&lst1, 3, 45);
-    InsertAfter (&lst1, 2, 76);
+    InsertAfter (&lst1,InsertAfter (&lst1, InsertAfter (&lst1, 2, 76), 98), 67);
+    InsertAfter (&lst1, 9, 99);
     Dump (&lst1, 20);
     return 0;
 }
@@ -172,9 +164,23 @@ void Dump (list* lst, int limit, char* str) {
     printf ("size = %d\n", lst->size);
     printf ("}\n");
 
+    FILE* f_out = fopen ("F:\\Graphs\\output.dot", "w");
+    fprintf (f_out, "digraph G {\n");
+    fprintf (f_out, "rankdir=LR\n");
+
     int f = lst->head;
+    fprintf (f_out, "\tHEAD [label = \"head\"]\n");
     while ( f != 0) {
-        printf ("|%d|-->", lst->data[f]);
+        fprintf (f_out,"\tA%p [shape = \"doublecircle\", label = %d]\n", lst->data + f, lst->data[f]);
         f = lst->next[f];
     }
+    int f2 = lst->head;
+    fprintf (f_out, "HEAD->");
+    while ( f2 != 0) {
+        fprintf (f_out,"A%p", lst->data + f2);
+        f2 = lst->next[f2];
+        if (f2 != 0) fprintf (f_out, "->");
+    }
+    fprintf (f_out, "\n}");
+    fclose (f_out);
 }
