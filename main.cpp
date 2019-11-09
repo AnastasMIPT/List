@@ -44,6 +44,9 @@ int main () {
     PushFront (&lst1, 19);
 
     Dump (&lst1, 20);
+
+    InsertAfter (&lst1, 3, 98);
+    Dump (&lst1, 20);
     return 0;
 }
 
@@ -77,12 +80,16 @@ void ListDistructor (list* lst) {
     free(lst->prev);
 }
 int InsertAfter (list* lst, int pos, el_t value) {
-    el_t buf = lst->next[pos];
-    lst->next[pos] = lst->free;
-    lst->data[lst->free] = value;
-    lst->free =buf;
+    lst->size += 1;
 
-    return lst->free;
+    lst->data[lst->free] = value;
+    int buf = lst->free;
+    lst->free = lst->next[lst->free];
+
+    lst->next[buf] = lst->next[pos];
+    lst->next[pos] = buf;
+
+    return buf;
 }
 
 bool TestPushFront () {
