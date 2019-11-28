@@ -33,13 +33,23 @@ int InsertAfter (list* lst, int pos, el_t value);
 bool TestPushFront ();
 int PushFront (list* lst, el_t value);
 void Dump (list* lst, int limit = DefaultSize, char* str = "Information lst");
+
 int main () {
 
     list lst1;
     ListConstructor (&lst1);
 
     InsertAfter (&lst1,InsertAfter (&lst1, InsertAfter (&lst1, 2, 76), 98), 67);
-    InsertAfter (&lst1, 9, 99);
+    int h = PushFront (&lst1, 25);
+    InsertAfter (&lst1, h, 78);
+    PushFront (&lst1, 35);
+    PushFront (&lst1, 42);
+    PushFront (&lst1, 42);
+    PushFront (&lst1, 42);
+    PushFront (&lst1, 42);
+    InsertAfter (&lst1, PushFront (&lst1, 35), 22);
+    InsertAfter (&lst1, PushFront (&lst1, 35), 22);
+    InsertAfter (&lst1, PushFront (&lst1, 35), 22);
     Dump (&lst1, 20);
     return 0;
 }
@@ -53,6 +63,11 @@ void ListConstructor (list* lst) {
     for (int i = 1; i < DefaultSize; i++) {
         lst->next[i] = i + 1;
     }
+
+    for (int i = 1; i < DefaultSize; i++) {
+        lst->prev[i] = -1;
+    }
+
 
     for (int i = 1; i < DefaultSize; i++) {
         lst->data[i] = Empty;
@@ -69,9 +84,9 @@ void ListConstructor (list* lst) {
 
 void ListDistructor (list* lst) {
 
-    free(lst->data);
-    free(lst->next);
-    free(lst->prev);
+    free (lst->data);
+    free (lst->next);
+    free (lst->prev);
 }
 
 int InsertAfter (list* lst, int pos, el_t value) {
@@ -85,7 +100,11 @@ int InsertAfter (list* lst, int pos, el_t value) {
     lst->free = lst->next[lst->free];
 
     lst->next[buf] = lst->next[pos];
+    lst->prev[buf] = pos;
+    if (lst->next[buf] != 0) lst->prev[lst->next[buf]] = buf;
+    if (lst->next[buf] == 0) lst->tail = buf;
     lst->next[pos] = buf;
+
 
     return buf;
 }
@@ -135,12 +154,15 @@ bool TestPushFront () {
 }
 
 int PushFront (list* lst, el_t value) {
+
     lst->size += 1;
     int pos = lst->free;
     lst->data[pos] = value;
     lst->free = lst->next[lst->free];
     lst->next[pos] = lst->head;
     lst->head = pos;
+    if (lst->next[pos] != 0) lst->prev[lst->next[pos]] = pos;
+    lst->prev[pos] = 0;
     return pos;
 }
 
@@ -159,28 +181,74 @@ void Dump (list* lst, int limit, char* str) {
         printf ("[%2d]", lst->next[i]);
     }
     printf ("\n");
+    for (int i = 0; i < limit; i++) {
+        printf ("[%2d]", lst->prev[i]);
+    }
+    printf ("\n");
+
     printf ("head = %d\n", lst->head);
     printf ("free = %d\n", lst->free);
     printf ("size = %d\n", lst->size);
+    printf ("tail = %d\n", lst->tail);
+    printf ("sorted = %d\n", lst->sorted);
     printf ("}\n");
 
     FILE* f_out = fopen ("F:\\Graphs\\output.dot", "w");
-    fprintf (f_out, "digraph G {\n");
-    fprintf (f_out, "rankdir=LR\n");
+    fprintf (f_out, "digraph G {\n"
+                    "ranksep = 1.8;\n"
+                    "subgraph Head {\n"
+                    "\tHEAD [label = \"head\"]\n"
+                    "\tedge[color=\"Orange\"]\n"
+                    "HEAD->A:i%d\n"
+                    "\tlabel = \"\";\n"
+                    "}\n"
+                    "subgraph Empty {\n"
+                    "\tEMPTY [label = \"empty\"]\n"
+                    "\tedge [color=\"gray\", arrowsize=\"0.5\", penwidth=\"1\", constrain = \"false\", weigth = \"0.1\"];\n",
+                    lst->head);
 
-    int f = lst->head;
-    fprintf (f_out, "\tHEAD [label = \"head\"]\n");
-    while ( f != 0) {
-        fprintf (f_out,"\tA%p [shape = \"doublecircle\", label = %d]\n", lst->data + f, lst->data[f]);
-        f = lst->next[f];
+    for (int i = lst->free; i < limit; i = lst->next[i]) {
+        fprintf (f_out, "EMPTY->A:i%d\n", i);
     }
-    int f2 = lst->head;
-    fprintf (f_out, "HEAD->");
-    while ( f2 != 0) {
-        fprintf (f_out,"A%p", lst->data + f2);
-        f2 = lst->next[f2];
-        if (f2 != 0) fprintf (f_out, "->");
+
+    fprintf (f_out,"\tlabel = \"\";\n"
+                   "}\n"
+                   "\n"
+                   "subgraph List {\n"
+                   "\tA [shape = \"record\", label = \"{<i0> %d |<val0> %d}",
+                   0, lst->data[0]);
+
+    for (int i = 1; i < limit; i++) {
+        fprintf (f_out,"| {<i%d> %d |<val%d> %d}", i, i, i, lst->data[i]);
     }
-    fprintf (f_out, "\n}");
+    fprintf (f_out, "\"]\n");
+    fprintf (f_out, "    lebel = \"\";\n"
+                    "}\n"
+                    "\n"
+                    "{rank = same; HEAD; EMPTY;}\n"
+                    "{rank = same; A;}\n"
+                    "subgraph Next {\n"
+                    "\tedge[color=\"#ffcbdb\"]\n");
+    fprintf (f_out, "A:i%d", lst->head);
+    for (int i = lst->next[lst->head]; i != 0 ; i = lst->next[i]) {
+        fprintf (f_out, "->A:i%d", i);
+    }
+
+    fprintf (f_out, "\n\tlebel = \"\";\n"
+                    "}\n"
+                    "subgraph Prev {\n"
+                    "\tedge[color=\"#98ff98\"]\n");
+
+    //Prev
+    fprintf (f_out, "A:val%d", lst->tail);
+    for (int i = lst->prev[lst->tail]; i != 0 ; i = lst->prev[i]) {
+        fprintf (f_out, "->A:val%d", i);
+    }
+
+
+    fprintf (f_out, "\tlabel = \"\";\n"
+                    "}\n"
+                    "}\n");
+
     fclose (f_out);
 }
