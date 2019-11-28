@@ -199,7 +199,7 @@ void Dump (list* lst, int limit, char* str) {
                     "subgraph Head {\n"
                     "\tHEAD [label = \"head\"]\n"
                     "\tedge[color=\"Orange\"]\n"
-                    "HEAD->A:i%d\n"
+                    "HEAD->A:%d1\n"
                     "\tlabel = \"\";\n"
                     "}\n"
                     "subgraph Empty {\n"
@@ -215,11 +215,11 @@ void Dump (list* lst, int limit, char* str) {
                    "}\n"
                    "\n"
                    "subgraph List {\n"
-                   "\tA [shape = \"record\", label = \"{<i0> %d |<val0> %d}",
+                   "\tA [shape = \"record\", label = \"{{<01> | <02> } |<i0> %d |<val0> %d | {<03> | <04> }}",
                    0, lst->data[0]);
 
     for (int i = 1; i < limit; i++) {
-        fprintf (f_out,"| {<i%d> %d |<val%d> %d}", i, i, i, lst->data[i]);
+        fprintf (f_out,"| {{<%d1> | <%d2> } |<i%d> %d |<val%d> %d | {<%d3> | <%d4> }}", i, i, i, i, i, lst->data[i], i, i);
     }
     fprintf (f_out, "\"]\n");
     fprintf (f_out, "    lebel = \"\";\n"
@@ -229,9 +229,11 @@ void Dump (list* lst, int limit, char* str) {
                     "{rank = same; A;}\n"
                     "subgraph Next {\n"
                     "\tedge[color=\"#ffcbdb\"]\n");
-    fprintf (f_out, "A:i%d", lst->head);
+    fprintf (f_out, "A:%d2", lst->head);
+
     for (int i = lst->next[lst->head]; i != 0 ; i = lst->next[i]) {
-        fprintf (f_out, "->A:i%d", i);
+        fprintf (f_out, "->A:%d1\n", i);\
+        if (lst->next[i] != 0) fprintf (f_out, "A:%d2", i);
     }
 
     fprintf (f_out, "\n\tlebel = \"\";\n"
@@ -240,9 +242,10 @@ void Dump (list* lst, int limit, char* str) {
                     "\tedge[color=\"#98ff98\"]\n");
 
     //Prev
-    fprintf (f_out, "A:val%d", lst->tail);
+    fprintf (f_out, "A:%d3", lst->tail);
     for (int i = lst->prev[lst->tail]; i != 0 ; i = lst->prev[i]) {
-        fprintf (f_out, "->A:val%d", i);
+        fprintf (f_out, "->A:%d4\n", i);
+        if (lst->prev[i] != 0) fprintf (f_out, "A:%d3", i);
     }
 
 
