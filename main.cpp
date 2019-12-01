@@ -49,6 +49,7 @@ void ListSort (list* lst);
 int Dump (list* lst, int limit = DefaultSize, char* str = "Information lst");
 void Swap (int* a, int* b);
 void SwapElements (list* lst, int pos, int cur_el);
+bool TestSwapElements ();
 int Testing ();
 
 int main () {
@@ -63,15 +64,15 @@ int main () {
 
     PushFront (&lst1, 42);
     PushFront(&lst1, 88);
-    PushFront(&lst1, 88);
-    PushFront(&lst1, 88);PushFront(&lst1, 88);PushFront(&lst1, 88);PushFront(&lst1, 88);PushFront(&lst1, 88);PushFront(&lst1, 88);PushFront(&lst1, 88);
+    //Dump (&lst1, 20);
+    //SwapElements (&lst1, 5, 3);
     DeleteAfter(&lst1, 1);
-    DeleteAfter(&lst1, 5);
-    DeleteAfter(&lst1, 9);
-    DeleteAfter(&lst1, 11);
-    DeleteAfter(&lst1, 14);
+    Dump (&lst1, 20);
     //ListSort (&lst1);
-    Dump (&lst1, 30);
+    SwapElements (&lst1, 2, 4);
+    //Dump (&lst1, 20);
+    //SwapElements (&lst1, 1, 5);
+    Dump (&lst1, 20);
 
     ListDistructor (&lst1);
     return 0;
@@ -110,9 +111,12 @@ int Testing ()
         printf ("DeleteBack (): OK\n");
         col_OK++;
     }
+    if (TestSwapElements()) {
+        printf ("SwapElements (): OK\n");
+        col_OK++;
+    }
 
-
-    return col_OK == 6;
+    return col_OK == 7;
 }
 
 int DeleteFront (list* lst) {
@@ -381,7 +385,6 @@ bool TestDeleteAfter () {
     return count == 13;
 }
 
-
 int InsertBefore (list* lst, int pos, el_t value) {
 
     if (lst == nullptr) {
@@ -404,28 +407,132 @@ void ListSort (list* lst) {
 
     int cur_el = lst->head;
 
-    lst->head = 1;
     for (int pos = 1; pos < lst->size + 1; pos++) {
+        printf ("pos = %d , cur_el = %d\n", pos, cur_el);
         if (cur_el != pos && cur_el != 0) {
-            Swap (&lst->data[pos], &lst->data[cur_el]);
-            int buf = lst->next[pos];
-
-            Swap (&lst->next[pos], &lst->prev[pos]);
-            Swap (&lst->next[cur_el], &lst->prev[cur_el]);
-            Swap (&lst->prev[pos], &lst->next[cur_el]);
-
-            lst->prev[buf] = cur_el;
-            if (pos > 1) lst->next[pos - 1] = pos;
-            cur_el = lst->next[pos];
+            SwapElements (lst, pos, cur_el);
         }
+        cur_el = lst->next[pos];
         Dump (lst, 20);
     }
 
     lst->sorted = true;
     lst->tail = lst->size;
 }
+
 void SwapElements (list* lst, int pos, int cur_el) {
 
+    int n_pos = pos;
+    int n_cur_el = cur_el;
+    Swap (&lst->data[pos], &lst->data[cur_el]);
+
+    if (lst->next[pos] == cur_el || lst->next[cur_el] == pos) {
+
+        if (lst->next[cur_el] == pos) {
+            n_pos = cur_el;
+            n_cur_el = pos;
+        }
+
+        lst->next[lst->prev[n_pos]]    = n_cur_el;
+        lst->prev[n_cur_el]            = lst->prev[n_pos];
+
+        lst->next[n_pos]               = lst->next[n_cur_el];
+        lst->prev[lst->next[n_cur_el]] = n_pos;
+
+        lst->prev[n_pos]    = n_cur_el;
+        lst->next[n_cur_el] = n_pos;
+    }
+    else {
+        lst->next[lst->prev[pos]] = cur_el;
+        lst->prev[lst->next[pos]] = cur_el;
+
+        lst->next[lst->prev[cur_el]] = pos;
+        lst->prev[lst->next[cur_el]] = pos;
+
+        Swap(&lst->next[pos], &lst->next[cur_el]);
+        Swap(&lst->prev[pos], &lst->prev[cur_el]);
+    }
+
+    if (pos == lst->head) {
+        lst->head = cur_el;
+        lst->next[0] = 0;
+    }
+    else if (cur_el == lst->head) {
+        lst->next[0] = 0;
+        lst->head = pos;
+    }
+    if (pos == lst->tail) {
+        lst->tail = cur_el;
+        lst->prev[0] = 0;
+    }
+    else if (cur_el == lst->tail) {
+        lst->tail = pos;
+        lst->prev[0] = 0;
+    }
+    if (pos == lst->free) {
+        lst->free = cur_el;
+        lst->prev[lst->next[cur_el]] = -1;
+    }
+    else if (cur_el == lst->free) {
+        lst->free = pos;
+        lst->prev[lst->next[pos]] = -1;
+    }
+
+}
+
+bool TestSwapElements () {
+
+    list lst1;
+    ListConstructor (&lst1);
+
+    int count = 0;
+
+    lst1.head = 5;
+    lst1.free = 2;
+    lst1.size = 4;
+    lst1.tail = 3;
+
+    ListElementInit (&lst1, 1, 76, 3, 4);
+    ListElementInit (&lst1, 2, Poison, 6, Empty);
+    ListElementInit (&lst1, 3, 67, 0, 1);
+    ListElementInit (&lst1, 4, 42, 1, 5);
+    ListElementInit (&lst1, 5, 88, 4, 0);
+
+    SwapElements (&lst1, 2, 4);                          ///Swap with free
+    TEST (lst1.prev[6] != Empty, SwapElements, 0)
+    TEST (lst1.data[4] != Poison, SwapElements, 1)
+    TEST (lst1.next[4] != 6, SwapElements, 2)
+    TEST (lst1.data[2] != 42, SwapElements, 3)
+    TEST (lst1.prev[4] != Empty, SwapElements, 4)
+    TEST (lst1.free != 4, SwapElements, 5)
+    TEST (lst1.prev[2] != 5, SwapElements, 6)
+    TEST (lst1.next[2] != 1, SwapElements, 7)
+    TEST (lst1.next[5] != 2, SwapElements, 8)
+    TEST (lst1.prev[1] != 2, SwapElements, 9)
+
+    ListElementInit (&lst1, 4, Poison, 6, Empty);
+    ListElementInit (&lst1, 2, 42, 1, 5);
+    lst1.free = 4;
+    lst1.next[5] = 2;
+    lst1.prev[1] = 2;
+
+    SwapElements (&lst1, 1, 5);                  ///Swap with head
+    TEST (lst1.data[1] != 88, SwapElements, 10)
+    TEST (lst1.next[1] != 2, SwapElements, 11)
+    TEST (lst1.prev[1] != 0, SwapElements, 12)
+    TEST (lst1.data[5] != 76, SwapElements, 13)
+    TEST (lst1.next[5] != 3, SwapElements, 14)
+    TEST (lst1.prev[5] != 2, SwapElements, 15)
+    TEST (lst1.head != 1, SwapElements, 16)
+    TEST (lst1.prev[2] != 1, SwapElements, 17)
+    TEST (lst1.next[2] != 5, SwapElements, 18)
+    TEST (lst1.prev[3] != 5, SwapElements, 19)
+    TEST (lst1.next[0] != 0, SwapElements, 20)
+
+
+    ListDistructor (&lst1);
+
+    return count == 21;
 }
 
 void Swap (int* a, int* b) {
@@ -450,7 +557,7 @@ void ListConstructor (list* lst) {
 
 
     for (int i = 1; i < DefaultSize; i++) {
-        lst->data[i] = Empty;
+        lst->data[i] = Poison;
     }
 
     lst->max_size = DefaultSize;
