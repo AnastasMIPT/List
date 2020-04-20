@@ -97,28 +97,31 @@ int list<int>::Dump (int limit, const char* str) {
 #include "cmake-build-debug/ListTests.h"
 
 int main () {
+//
+//    list<int> lst1 (-3);
+//
+//    if (list_testing::Testing ()) printf ("ALL IS OK\n");
+//
+//    lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, 76), 98), 67);
+//
+//    lst1.PushFront (42);
+//    lst1.PushFront (88);
+//    lst1.Dump (20);
+//    lst1.Delete (3);
+//
+//    lst1.Dump (20);
 
-    list<int> lst1 (-3);
+//    std::string a = "fjslkdf";
+//    printf ("%ld", a.size());
+//    //list<std::string>
+    list<std::string> lst1 (std::string ("-3"));
 
-    if (list_testing::Testing ()) printf ("ALL IS OK\n");
+    lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, "76"), "98"), "67");
 
-    lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, 76), 98), 67);
+    lst1.PushFront ("42");
+    lst1.PushFront ("88");
 
-    lst1.PushFront (42);
-    lst1.PushFront (88);
     lst1.Dump (20);
-    //DeleteAfter(1);
-    lst1.Delete (3);
-
-    //Dump (20);
-    //ListSort ();
-    //int g = SearchElementByLogicNum (4);
-    //SwapElements (2, 4);
-    //Dump (20);
-    //SwapElements (1, 5);
-    lst1.Dump (20);
-
-    //ListDistructor ();
     return 0;
 }
 
@@ -189,11 +192,6 @@ int list<Type>::DeleteBack () {
 template<typename Type>
 int list<Type>::DeleteBefore (int pos) {
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteBefore\n");
-        return 0;
-    }
-
     if (prev[pos] == Empty) {
         printf ("ERROR attempt to delete empty element\n");
         return 0;
@@ -216,10 +214,6 @@ void list<Type>::ListElementInit (int pos, Type data, int next, int prev) {
 template<typename Type>
 int list<Type>::Delete (int pos) {
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteAfter\n");
-        return 0;
-    }
     if (prev[pos] == Empty) {
         printf ("ERROR attempt to delete empty element\n");
         return 0;
@@ -253,11 +247,6 @@ int list<Type>::Delete (int pos) {
 template<typename Type>
 int list<Type>::DeleteAfter (int pos) {
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteAfter\n");
-        return 0;
-    }
-
     if (next[pos] == 0 || prev[pos] == Empty) {
         printf ("ERROR attempt to delete empty element\n");
         return 0;
@@ -281,11 +270,6 @@ int list<Type>::DeleteAfter (int pos) {
 
 template<typename Type>
 int list<Type>::InsertBefore (int pos, Type value) {
-
-    if (this == nullptr) {
-        printf ("ERROR nullptr in InsertBefore\n");
-        return 0;
-    }
 
     if (prev[pos] == Empty) {
 
@@ -321,7 +305,6 @@ void list<Type>::SwapElements (int pos, int cur_el) {
 
     int n_pos = pos;
     int n_cur_el = cur_el;
-    //Swap (&data[pos], &data[cur_el]);
     std::swap (data[pos], data[cur_el]);
 
 
@@ -347,13 +330,8 @@ void list<Type>::SwapElements (int pos, int cur_el) {
         next[prev[cur_el]] = pos;
         prev[next[cur_el]] = pos;
 
-        //printf ("/n ^ data[pos] = %d, data[cur_el] = %d\n", next[pos], next[cur_el]);
-        //Swap(&next[pos], &next[cur_el]);
         std::swap (next[pos], next[cur_el]);
-        //printf ("/n ^ data[pos] = %d, data[cur_el] = %d\n", next[pos], next[cur_el]);
         std::swap (prev[pos], prev[cur_el]);
-
-        //Swap(&prev[pos], &prev[cur_el]);
     }
 
     if (pos == head) {
@@ -398,9 +376,7 @@ list<Type>::list (Type Poison) : max_size (DefaultSize), free (1), head (0), siz
     for (int i = 1; i < DefaultSize; i++) {
         data[i] = Poison;
     }
-    next[0] = 0;
-    prev[0] = 0;
-    data[0] = 0;
+
 }
 
 template<typename Type>
@@ -413,12 +389,6 @@ list<Type>::~list () {
 
 template<typename Type>
 int list<Type>::InsertAfter (int pos, Type value) {
-
-    if (this == nullptr) {
-        printf ("ERROR nullptr in InsertAfter\n");
-        return 0;
-    }
-
     if (prev[pos] == Empty) {
         printf ("ERROR attempt to insert after empty element\n");
         return 0;
@@ -447,11 +417,6 @@ int list<Type>::InsertAfter (int pos, Type value) {
 
 template<typename Type>
 int list<Type>::PushFront (Type value) {
-
-    if (this == nullptr) {
-        printf ("ERROR nullptr in PushFront\n");
-        return 0;
-    }
     sorted = false;
 
     size++;
