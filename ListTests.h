@@ -123,6 +123,9 @@ bool list_testing::TestDeleteBack () {
     lst1.size = 5;
     lst1.tail = 3;
 
+    lst1.data[0] = 0;
+    lst1.prev[0] = 0;
+    lst1.next[0] = 0;
     lst1.ListElementInit (1, 76, 2, 4);
     lst1.ListElementInit (2, 98, 5, 1);
     lst1.ListElementInit (3, 67, 0, 5);

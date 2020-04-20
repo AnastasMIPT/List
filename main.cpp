@@ -98,15 +98,20 @@ int list<int>::Dump (int limit, const char* str) {
 
 int main () {
 //
-//    list<int> lst1 (-3);
+    list<int> lst1 (-3);
 //
-//    if (list_testing::Testing ()) printf ("ALL IS OK\n");
+    if (list_testing::Testing ()) printf ("ALL IS OK\n");
 //
 //    lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, 76), 98), 67);
 //
-//    lst1.PushFront (42);
-//    lst1.PushFront (88);
-//    lst1.Dump (20);
+//    lst1.InsertAfter (0, 45);
+    lst1.InsertAfter (0, 47);
+    lst1.PushBack (49);
+    lst1.InsertAfter (2, 55);
+    lst1.DeleteBack ();
+//lst1.PushBack(42);
+    //lst1.PushBack (88);
+    lst1.Dump (20);
 //    lst1.Delete (3);
 //
 //    lst1.Dump (20);
@@ -114,14 +119,14 @@ int main () {
 //    std::string a = "fjslkdf";
 //    printf ("%ld", a.size());
 //    //list<std::string>
-    list<std::string> lst1 (std::string ("-3"));
+    //list<std::string> lst1 (std::string ("-3"));
 
-    lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, "76"), "98"), "67");
+ //   lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, "76"), "98"), "67");
 
-    lst1.PushFront ("42");
-    lst1.PushFront ("88");
+   // lst1.PushBack ("42");
+    //lst1.PushBack ("88");
 
-    lst1.Dump (20);
+    //lst1.Dump (20);
     return 0;
 }
 
@@ -163,11 +168,6 @@ int list<Type>::DeleteFront () {
 template<typename Type>
 int list<Type>::DeleteBack () {
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteBack\n");
-        return 0;
-    }
-
     if (size == 0) {
         printf ("ERROR attempt delete empty element\n");
         return 0;
@@ -175,7 +175,6 @@ int list<Type>::DeleteBack () {
 
     if (prev[tail] == 0) head = 0;
 
-    sorted = false;
 
     next[prev[tail]] = 0;
     next[tail] = free;
@@ -394,7 +393,7 @@ int list<Type>::InsertAfter (int pos, Type value) {
         return 0;
     }
 
-    if (pos != tail) sorted = false;
+    if (pos != tail && size != 0) sorted = false;
 
 
     if (size == 0) return PushFront (value);
@@ -417,7 +416,9 @@ int list<Type>::InsertAfter (int pos, Type value) {
 
 template<typename Type>
 int list<Type>::PushFront (Type value) {
-    sorted = false;
+    if (size != 0) {
+        sorted = false;
+    }
 
     size++;
     int pos = free;
@@ -432,15 +433,11 @@ int list<Type>::PushFront (Type value) {
 
 template<typename Type>
 int list<Type>::PushBack (Type value) {
+    //sorted = false;
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in PushBack\n");
-        return 0;
-    }
-
-    sorted = false;
 
     int pos = free;
+    if (size == 0) head = pos;
     free = next[free];
     ListElementInit (pos, value, 0, tail);
     next[tail] = pos;
