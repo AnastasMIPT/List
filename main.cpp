@@ -2,10 +2,7 @@
 #include <cstdlib>
 #include <assert.h>
 #include <algorithm>
-
-
-const int Empty = -1;
-const int Poison = -3;
+#include <iostream>
 
 template<typename Type>
 class list {
@@ -20,13 +17,15 @@ class list {
     size_t size;
     size_t max_size;
     bool sorted;
+
     const static int DefaultSize = 50;
+    const static int Empty = -1;
+    Type Poison;
 
     void ListElementInit (int pos, Type data, int next, int prev);
-
 public:
 
-    list ();
+    explicit list (Type Poison);
 
     ~list ();
 
@@ -61,11 +60,45 @@ public:
     friend struct list_testing;
 };
 
+template < >
+int list<int>::Dump (int limit, const char* str) {
+
+    printf ("%s\n", str);
+
+    printf ("LIST:\n"
+            "{\n");
+    for (int i = 0; i < limit; i++) {
+        printf (" %2d ", i);
+    }
+    printf ("\n");
+    for (int i = 0; i < limit; i++) {
+        printf ("[%2d]", data[i]);
+    }
+    printf ("\n");
+    for (int i = 0; i < limit; i++) {
+        printf ("[%2d]", next[i]);
+    }
+    printf ("\n");
+    for (int i = 0; i < limit; i++) {
+        printf ("[%2d]", prev[i]);
+    }
+    printf ("\n");
+
+    printf ("head = %d\n", head);
+    printf ("free = %d\n", free);
+    printf ("size = %ld\n", size);
+    printf ("tail = %d\n", tail);
+    printf ("sorted = %d\n", sorted);
+    printf ("}\n");
+
+    return 0;
+}
+
 #include "cmake-build-debug/ListTests.h"
 
 int main () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
     if (list_testing::Testing ()) printf ("ALL IS OK\n");
 
@@ -347,7 +380,7 @@ void list<Type>::SwapElements (int pos, int cur_el) {
 }
 
 template<typename Type>
-list<Type>::list () : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (1) {
+list<Type>::list (Type Poison) : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (1) {
 
     data = new Type[DefaultSize];
     next = new int[DefaultSize];
@@ -452,30 +485,27 @@ int list<Type>::PushBack (Type value) {
     return pos;
 }
 
+
 template<typename Type>
 int list<Type>::Dump (int limit, const char* str) {
-
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteBefore\n");
-        return 1;
-    }
-
     printf ("%s\n", str);
 
     printf ("LIST:\n"
-            "{\n");
+                "{\n"
+                "data[]:\n");
+
     for (int i = 0; i < limit; i++) {
-        printf (" %2d ", i);
+        std::cout << data[i] << " ";
     }
-    printf ("\n");
-    for (int i = 0; i < limit; i++) {
-        printf ("[%2d]", data[i]);
-    }
-    printf ("\n");
+
+
+    printf ("\n"
+            "next[]:\n");
     for (int i = 0; i < limit; i++) {
         printf ("[%2d]", next[i]);
     }
-    printf ("\n");
+    printf ("\n"
+            "prev[]:\n");
     for (int i = 0; i < limit; i++) {
         printf ("[%2d]", prev[i]);
     }
@@ -488,9 +518,12 @@ int list<Type>::Dump (int limit, const char* str) {
     printf ("sorted = %d\n", sorted);
     printf ("}\n");
 
-
     return 0;
+
+
+
 }
+
 
 template<typename Type>
 void list<Type>::DrawDump (int limit, FILE* f_out) {

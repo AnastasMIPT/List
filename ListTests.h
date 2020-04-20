@@ -82,7 +82,7 @@ bool list_testing::Testing () {
 
 bool list_testing::TestDeleteFront () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
     int count = 0;
 
@@ -99,11 +99,11 @@ bool list_testing::TestDeleteFront () {
 
     lst1.DeleteFront ();
 
-    TEST (lst1.data[4] != Poison, DeleteFront, 1)
+    TEST (lst1.data[4] != lst1.Poison, DeleteFront, 1)
     TEST (lst1.next[4] != 1, DeleteFront, 2)
     TEST (lst1.size != 3, DeleteFront, 3)
     TEST (lst1.head != 2, DeleteFront, 4)
-    TEST (lst1.prev[4] != Empty, DeleteFront, 5)
+    TEST (lst1.prev[4] != lst1.Empty, DeleteFront, 5)
     TEST (lst1.prev[2] != 0, DeleteFront, 6)
 
     //ListDistructor ();
@@ -114,7 +114,7 @@ bool list_testing::TestDeleteFront () {
 
 bool list_testing::TestDeleteBack () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
     int count = 0;
 
@@ -131,7 +131,7 @@ bool list_testing::TestDeleteBack () {
 
     lst1.DeleteBack ();
 
-    TEST (lst1.data[3] != Poison, DeleteBack, 1)
+    TEST (lst1.data[3] != lst1.Poison, DeleteBack, 1)
     TEST (lst1.next[3] != 6, DeleteBack, 2)
     TEST (lst1.size != 4, DeleteBack, 3)
     TEST (lst1.tail != 5, DeleteBack, 4)
@@ -161,7 +161,7 @@ bool list_testing::TestDeleteBack () {
 
 bool list_testing::TestDeleteBefore () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
     int count = 0;
 
@@ -178,19 +178,19 @@ bool list_testing::TestDeleteBefore () {
 
     lst1.DeleteBefore (2);
 
-    TEST (lst1.data[1] != Poison, DeleteBefore, 1)
+    TEST (lst1.data[1] != lst1.Poison, DeleteBefore, 1)
     TEST (lst1.next[1] != 6, DeleteBefore, 2)
     TEST (lst1.size != 4, DeleteBefore, 3)
-    TEST (lst1.prev[1] != Empty, DeleteBefore, 4)
+    TEST (lst1.prev[1] != lst1.Empty, DeleteBefore, 4)
     TEST (lst1.free != 1, DeleteBefore, 5)
 
     lst1.DeleteBefore (2);
 
-    TEST (lst1.data[4] != Poison, DeleteBefore, 6)
+    TEST (lst1.data[4] != lst1.Poison, DeleteBefore, 6)
     TEST (lst1.next[4] != 1, DeleteBefore, 7)
     TEST (lst1.size != 3, DeleteBefore, 8)
     TEST (lst1.head != 2, DeleteBefore, 9)
-    TEST (lst1.prev[4] != Empty, DeleteBefore, 10)
+    TEST (lst1.prev[4] != lst1.Empty, DeleteBefore, 10)
     TEST (lst1.prev[2] != 0, DeleteBefore, 11)
 
     //ListDistructor ();
@@ -201,7 +201,7 @@ bool list_testing::TestDeleteBefore () {
 
 bool list_testing::TestDeleteAfter () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
     int count = 0;
 
@@ -218,10 +218,10 @@ bool list_testing::TestDeleteAfter () {
 
     lst1.DeleteAfter (5);
 
-    TEST (lst1.data[3] != Poison, DeleteAfter, 1)
+    TEST (lst1.data[3] != lst1.Poison, DeleteAfter, 1)
     TEST (lst1.next[3] != 6, DeleteAfter, 2)
     TEST (lst1.size != 4, DeleteAfter, 3)
-    TEST (lst1.prev[3] != Empty, DeleteAfter, 4)
+    TEST (lst1.prev[3] != lst1.Empty, DeleteAfter, 4)
     TEST (lst1.prev[5] != 2, DeleteAfter, 5)
     TEST (lst1.next[5] != 0, DeleteAfter, 6)
     TEST (lst1.tail != 5, DeleteAfter, 7)
@@ -231,9 +231,9 @@ bool list_testing::TestDeleteAfter () {
 
     TEST (lst1.free != 2, DeleteAfter, 9)
     TEST (lst1.next[1] != 5, DeleteAfter, 10)
-    TEST (lst1.prev[2] != Empty, DeleteAfter, 11)
+    TEST (lst1.prev[2] != lst1.Empty, DeleteAfter, 11)
     TEST (lst1.next[2] != 3, DeleteAfter, 12)
-    TEST (lst1.data[2] != Poison, DeleteAfter, 13)
+    TEST (lst1.data[2] != lst1.Poison, DeleteAfter, 13)
 
 
     //ListDistructor ();
@@ -244,7 +244,7 @@ bool list_testing::TestDeleteAfter () {
 
 bool list_testing::TestSwapElements () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
     int count = 0;
 
@@ -254,7 +254,7 @@ bool list_testing::TestSwapElements () {
     lst1.tail = 3;
 
     lst1.ListElementInit (1, 76, 3, 4);
-    lst1.ListElementInit (2, Poison, 6, Empty);
+    lst1.ListElementInit (2, lst1.Poison, 6, lst1.Empty);
     lst1.ListElementInit (3, 67, 0, 1);
     lst1.ListElementInit (4, 42, 1, 5);
     lst1.ListElementInit (5, 88, 4, 0);
@@ -262,18 +262,18 @@ bool list_testing::TestSwapElements () {
     lst1.SwapElements (2, 4);                          ///Swap with free
     lst1.Dump (20);
 
-    TEST (lst1.prev[6] != Empty, SwapElements, 0)
-    TEST (lst1.data[4] != Poison, SwapElements, 1)
+    TEST (lst1.prev[6] != lst1.Empty, SwapElements, 0)
+    TEST (lst1.data[4] != lst1.Poison, SwapElements, 1)
     TEST (lst1.next[4] != 6, SwapElements, 2)
     TEST (lst1.data[2] != 42, SwapElements, 3)
-    TEST (lst1.prev[4] != Empty, SwapElements, 4)
+    TEST (lst1.prev[4] != lst1.Empty, SwapElements, 4)
     TEST (lst1.free != 4, SwapElements, 5)
     TEST (lst1.prev[2] != 5, SwapElements, 6)
     TEST (lst1.next[2] != 1, SwapElements, 7)
     TEST (lst1.next[5] != 2, SwapElements, 8)
     TEST (lst1.prev[1] != 2, SwapElements, 9)
 
-    lst1.ListElementInit (4, Poison, 6, Empty);
+    lst1.ListElementInit (4, lst1.Poison, 6, lst1.Empty);
     lst1.ListElementInit (2, 42, 1, 5);
     lst1.free = 4;
     lst1.next[5] = 2;
@@ -299,7 +299,7 @@ bool list_testing::TestSwapElements () {
 
 
 bool list_testing::TestPushFront () {
-    list<int> lst1;
+    list<int> lst1 (-3);
 
 
     int count = 0;
@@ -328,7 +328,7 @@ bool list_testing::TestPushFront () {
 
     //ListDistructor ();
 
-    list<int> lst2;
+    list<int> lst2 (-3);
     //ListConstructor (&lst2);
 
     lst2.PushFront (25);
@@ -346,7 +346,7 @@ bool list_testing::TestPushFront () {
 
 bool list_testing::TestPushBack () {
 
-    list<int> lst1;
+    list<int> lst1 (-3);
 
 
     int count = 0;
