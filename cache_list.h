@@ -36,6 +36,8 @@ public:
 
     explicit list (Type Poison, size_t max_size = DefaultSize);
 
+    list ();
+
     ~list ();
 
     int PushFront (Type value);
@@ -349,6 +351,22 @@ list<Type>::list (Type Poison, size_t max_size) :  free (1), head (0), size (0),
         data[i] = Poison;
     }
 
+}
+
+template<typename Type>
+list<Type>::list () : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (1) {
+
+    data = new Type[max_size];
+    next = new int[max_size];
+    prev = new int[max_size];
+
+    for (int i = 1; i < DefaultSize; i++) {
+        next[i] = i + 1;
+    }
+
+    for (int i = 1; i < DefaultSize; i++) {
+        prev[i] = -1;
+    }
 }
 
 template<typename Type>
