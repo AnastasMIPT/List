@@ -1,3 +1,12 @@
+//
+// Created by anastas on 20.04.2020.
+//
+
+#ifndef HASHTABLE_CACHE_LIST_H
+#define HASHTABLE_CACHE_LIST_H
+
+#endif //HASHTABLE_CACHE_LIST_H
+
 #include <stdio.h>
 #include <cstdlib>
 #include <assert.h>
@@ -18,14 +27,16 @@ class list {
     size_t max_size;
     bool sorted;
 
-    const static int DefaultSize = 50;
+    const static unsigned int DefaultSize = 50;
     const static int Empty = -1;
     Type Poison;
 
     void ListElementInit (int pos, Type data, int next, int prev);
 public:
 
-    explicit list (Type Poison);
+    explicit list (Type Poison, size_t max_size = DefaultSize);
+
+    list ();
 
     ~list ();
 
@@ -97,39 +108,18 @@ int list<int>::Dump (int limit, const char* str) {
 #include "cmake-build-debug/ListTests.h"
 
 int main () {
-//
-    list<int> lst1 (-3);
-//
-    if (list_testing::Testing ()) printf ("ALL IS OK\n");
-//
-//    lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, 76), 98), 67);
-//
-//    lst1.InsertAfter (0, 45);
-    lst1.InsertAfter (0, 47);
-    lst1.PushBack (49);
-    lst1.InsertAfter (2, 55);
-    lst1.DeleteBack ();
-//lst1.PushBack(42);
-    //lst1.PushBack (88);
-    lst1.Dump (20);
-//    lst1.Delete (3);
-//
-//    lst1.Dump (20);
+    list<int> lst (-3);
 
-//    std::string a = "fjslkdf";
-//    printf ("%ld", a.size());
-//    //list<std::string>
-    //list<std::string> lst1 (std::string ("-3"));
+    //if (list_testing::Testing ()) printf ("All is OK\n");
+    lst.PushBack (23);
+    lst.PushBack (25);
+    lst.DeleteBefore (2);
+    //lst.InsertBefore (1, 88);
+    lst.Dump (20);
 
- //   lst1.InsertAfter (lst1.InsertAfter (lst1.InsertAfter (0, "76"), "98"), "67");
 
-   // lst1.PushBack ("42");
-    //lst1.PushBack ("88");
-
-    //lst1.Dump (20);
     return 0;
 }
-
 template<typename Type>
 int list<Type>::SearchElementByLogicNum (int num) {
     if (sorted) {
@@ -146,22 +136,17 @@ int list<Type>::SearchElementByLogicNum (int num) {
 template<typename Type>
 int list<Type>::DeleteFront () {
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteFront\n");
-        return 0;
-    }
-
     sorted = false;
 
     int rezult = head;
     head = next[head];
     prev[rezult] = Empty;
     next[rezult] = free;
-    data[rezult] = Poison;
     free = rezult;
     prev[head] = 0;
+    data[rezult] = Poison;
     size--;
-
+    if (size == 0) tail = 0;
     return rezult;
 }
 
@@ -357,11 +342,12 @@ void list<Type>::SwapElements (int pos, int cur_el) {
 }
 
 template<typename Type>
-list<Type>::list (Type Poison) : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (1) {
+list<Type>::list (Type Poison, size_t max_size) :  free (1), head (0), size (0), sorted (true), tail (0) {
 
-    data = new Type[DefaultSize];
-    next = new int[DefaultSize];
-    prev = new int[DefaultSize];
+    this->Poison = Poison;
+    data = new Type[max_size];
+    next = new int[max_size];
+    prev = new int[max_size];
 
     for (int i = 1; i < DefaultSize; i++) {
         next[i] = i + 1;
@@ -376,6 +362,22 @@ list<Type>::list (Type Poison) : max_size (DefaultSize), free (1), head (0), siz
         data[i] = Poison;
     }
 
+}
+
+template<typename Type>
+list<Type>::list () : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (0) {
+
+    data = new Type[max_size];
+    next = new int[max_size];
+    prev = new int[max_size];
+
+    for (int i = 1; i < DefaultSize; i++) {
+        next[i] = i + 1;
+    }
+
+    for (int i = 1; i < DefaultSize; i++) {
+        prev[i] = -1;
+    }
 }
 
 template<typename Type>
@@ -420,7 +422,7 @@ int list<Type>::PushFront (Type value) {
         sorted = false;
     }
 
-    size++;
+
     int pos = free;
     data[pos] = value;
     free = next[free];
@@ -428,6 +430,8 @@ int list<Type>::PushFront (Type value) {
     head = pos;
     if (next[pos] != 0) prev[next[pos]] = pos;
     prev[pos] = 0;
+    if (size == 0) tail = pos;
+    size++;
     return pos;
 }
 
@@ -440,7 +444,7 @@ int list<Type>::PushBack (Type value) {
     if (size == 0) head = pos;
     free = next[free];
     ListElementInit (pos, value, 0, tail);
-    next[tail] = pos;
+    if (tail != 0) next[tail] = pos;
     tail = pos;
     size++;
 
@@ -453,8 +457,8 @@ int list<Type>::Dump (int limit, const char* str) {
     printf ("%s\n", str);
 
     printf ("LIST:\n"
-                "{\n"
-                "data[]:\n");
+            "{\n"
+            "data[]:\n");
 
     for (int i = 0; i < limit; i++) {
         std::cout << data[i] << " ";

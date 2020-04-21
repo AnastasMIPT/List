@@ -121,22 +121,17 @@ int list<Type>::SearchElementByLogicNum (int num) {
 template<typename Type>
 int list<Type>::DeleteFront () {
 
-    if (this == nullptr) {
-        printf ("ERROR nullptr in DeleteFront\n");
-        return 0;
-    }
-
     sorted = false;
 
     int rezult = head;
     head = next[head];
     prev[rezult] = Empty;
     next[rezult] = free;
-    data[rezult] = Poison;
     free = rezult;
     prev[head] = 0;
+    data[rezult] = Poison;
     size--;
-
+    if (size == 0) tail = 0;
     return rezult;
 }
 
@@ -332,8 +327,9 @@ void list<Type>::SwapElements (int pos, int cur_el) {
 }
 
 template<typename Type>
-list<Type>::list (Type Poison, size_t max_size) :  free (1), head (0), size (0), sorted (true), tail (1) {
+list<Type>::list (Type Poison, size_t max_size) :  free (1), head (0), size (0), sorted (true), tail (0) {
 
+    this->Poison = Poison;
     data = new Type[max_size];
     next = new int[max_size];
     prev = new int[max_size];
@@ -354,7 +350,7 @@ list<Type>::list (Type Poison, size_t max_size) :  free (1), head (0), size (0),
 }
 
 template<typename Type>
-list<Type>::list () : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (1) {
+list<Type>::list () : max_size (DefaultSize), free (1), head (0), size (0), sorted (true), tail (0) {
 
     data = new Type[max_size];
     next = new int[max_size];
@@ -411,7 +407,7 @@ int list<Type>::PushFront (Type value) {
         sorted = false;
     }
 
-    size++;
+
     int pos = free;
     data[pos] = value;
     free = next[free];
@@ -419,6 +415,8 @@ int list<Type>::PushFront (Type value) {
     head = pos;
     if (next[pos] != 0) prev[next[pos]] = pos;
     prev[pos] = 0;
+    if (size == 0) tail = pos;
+    size++;
     return pos;
 }
 
@@ -431,7 +429,7 @@ int list<Type>::PushBack (Type value) {
     if (size == 0) head = pos;
     free = next[free];
     ListElementInit (pos, value, 0, tail);
-    next[tail] = pos;
+    if (tail != 0) next[tail] = pos;
     tail = pos;
     size++;
 
