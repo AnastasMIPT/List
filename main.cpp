@@ -12,6 +12,52 @@
 #include <assert.h>
 #include <algorithm>
 #include <iostream>
+#include <iterator>
+
+template<typename ValueType>
+class ListIterator : public std::iterator<std::bidirectional_iterator_tag, ValueType, int> {
+
+    int num;
+    ValueType* data;
+    int* prev;
+    int* next;
+
+public:
+    ListIterator (int point, ValueType* data, int* next, int* prev) :
+            num (point), data (data), prev (prev), next (next) {}
+
+    ListIterator (const ListIterator& it) :
+            num (it.num), data (it.data), prev (it.prev), next (it.next) {}
+
+    bool operator== (ListIterator const& it) const { return num == it.num; }
+
+    bool operator!= (ListIterator const& it) const { return num != it.num; }
+
+    typename ListIterator::reference operator* () const { return data[num]; }
+
+    ListIterator& operator++ () {
+        num = next[num];
+        return *this;
+    }
+
+    ListIterator operator++ (int) {
+        ListIterator temp = *this;
+        num = next[num];
+        return temp;
+    }
+
+    ListIterator& operator-- () {
+        num = prev[num];
+        return *this;
+    }
+
+    ListIterator operator-- (int) {
+        ListIterator temp = *this;
+        num = prev[num];
+        return temp;
+    }
+};
+
 
 template<typename Type>
 class list {
@@ -27,18 +73,43 @@ class list {
     size_t max_size;
     bool sorted;
 
-    const static unsigned int DefaultSize = 50;
+    const static unsigned int DefaultSize = 5000;
     const static int Empty = -1;
     Type Poison;
 
     void ListElementInit (int pos, Type data, int next, int prev);
+
 public:
+
+    typedef ListIterator<Type> iterator;
+    typedef const iterator const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+
+    iterator begin () {
+        return ListIterator (head, data, next, prev);
+    }
+
+    iterator end () {
+        return ListIterator (0, data, next, prev);
+    }
+
+    reverse_iterator rbegin () {
+        return reverse_iterator (ListIterator (tail, data, next, prev));
+    }
+
+    reverse_iterator rend () {
+        return reverse_iterator (ListIterator (0, data, next, prev));
+    }
 
     explicit list (Type Poison, size_t max_size = DefaultSize);
 
     list ();
 
     ~list ();
+
+    size_t list_size () {
+        return size;
+    }
 
     int PushFront (Type value);
 
@@ -69,9 +140,12 @@ public:
     void DrawDump (int limit = DefaultSize, FILE* f_out = fopen ("F:\\Graphs\\output.dot", "w"));
 
     friend struct list_testing;
+
+
 };
 
-template < >
+
+template<>
 int list<int>::Dump (int limit, const char* str) {
 
     printf ("%s\n", str);
@@ -105,21 +179,29 @@ int list<int>::Dump (int limit, const char* str) {
     return 0;
 }
 
-#include "cmake-build-debug/ListTests.h"
 
 int main () {
-    list<int> lst (-3);
+    list<int> ls (-3);
+    ls.PushBack (3);
+    ls.PushBack (4);
+    ls.PushBack (5);
+    ls.PushBack (6);
 
-    //if (list_testing::Testing ()) printf ("All is OK\n");
-    lst.PushBack (23);
-    lst.PushBack (25);
-    lst.DeleteBefore (2);
-    //lst.InsertBefore (1, 88);
-    lst.Dump (20);
-
-
+//    auto  it = std::find (ls.begin (), ls.end(), 23);
+//    printf ("%d", *it);
+//    for (auto &c : ls) {
+//        c++;
+//    }
+//    for (auto c : ls) {
+//        printf ("%d ", c);
+//    }
+    for (list<int>::reverse_iterator it = ls.rbegin (); it != ls.rend (); ++it) {
+        printf ("%d ", *it);
+    }
     return 0;
 }
+
+
 template<typename Type>
 int list<Type>::SearchElementByLogicNum (int num) {
     if (sorted) {
@@ -485,7 +567,6 @@ int list<Type>::Dump (int limit, const char* str) {
     printf ("}\n");
 
     return 0;
-
 
 
 }

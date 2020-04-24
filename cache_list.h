@@ -7,11 +7,66 @@
 
 #endif //HASHTABLE_CACHE_LIST_H
 
+//
+// Created by anastas on 20.04.2020.
+//
+
+#ifndef HASHTABLE_CACHE_LIST_H
+#define HASHTABLE_CACHE_LIST_H
+
+#endif //HASHTABLE_CACHE_LIST_H
+
 #include <stdio.h>
 #include <cstdlib>
 #include <assert.h>
 #include <algorithm>
 #include <iostream>
+#include <iterator>
+
+template<typename ValueType>
+class ListIterator : public std::iterator<std::bidirectional_iterator_tag, ValueType, int> {
+
+    int num;
+    ValueType* data;
+    int* prev;
+    int* next;
+
+public:
+    ListIterator (int point, ValueType* data, int* next, int* prev) :
+            num (point), data (data), prev (prev), next (next) {}
+
+    ListIterator (const ListIterator& it) :
+            num (it.num), data (it.data), prev (it.prev), next (it.next) {}
+
+    bool operator== (ListIterator const& it) const { return num == it.num; }
+
+    bool operator!= (ListIterator const& it) const { return num != it.num; }
+
+    typename ListIterator::reference operator* () const { return data[num]; }
+
+    ListIterator& operator++ () {
+        num = next[num];
+        return *this;
+    }
+
+    ListIterator operator++ (int) {
+        ListIterator temp = *this;
+        num = next[num];
+        return temp;
+    }
+
+    ListIterator& operator-- () {
+        num = prev[num];
+        return *this;
+    }
+
+    ListIterator operator-- (int) {
+        ListIterator temp = *this;
+        num = prev[num];
+        return temp;
+    }
+};
+
 
 template<typename Type>
 class list {
@@ -27,18 +82,43 @@ class list {
     size_t max_size;
     bool sorted;
 
-    const static unsigned int DefaultSize = 50;
+    const static unsigned int DefaultSize = 5000;
     const static int Empty = -1;
     Type Poison;
 
     void ListElementInit (int pos, Type data, int next, int prev);
+
 public:
+
+    typedef ListIterator<Type> iterator;
+    typedef const iterator const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+
+    iterator begin () {
+        return ListIterator (head, data, next, prev);
+    }
+
+    iterator end () {
+        return ListIterator (0, data, next, prev);
+    }
+
+    reverse_iterator rbegin () {
+        return reverse_iterator (ListIterator (tail, data, next, prev));
+    }
+
+    reverse_iterator rend () {
+        return reverse_iterator (ListIterator (0, data, next, prev));
+    }
 
     explicit list (Type Poison, size_t max_size = DefaultSize);
 
     list ();
 
     ~list ();
+
+    size_t list_size () {
+        return size;
+    }
 
     int PushFront (Type value);
 
@@ -69,9 +149,12 @@ public:
     void DrawDump (int limit = DefaultSize, FILE* f_out = fopen ("F:\\Graphs\\output.dot", "w"));
 
     friend struct list_testing;
+
+
 };
 
-template < >
+
+template<>
 int list<int>::Dump (int limit, const char* str) {
 
     printf ("%s\n", str);
@@ -104,6 +187,7 @@ int list<int>::Dump (int limit, const char* str) {
 
     return 0;
 }
+
 
 template<typename Type>
 int list<Type>::SearchElementByLogicNum (int num) {
@@ -470,7 +554,6 @@ int list<Type>::Dump (int limit, const char* str) {
     printf ("}\n");
 
     return 0;
-
 
 
 }
